@@ -11,6 +11,7 @@ import aiorwlock
 from sortedcontainers import SortedSet
 
 from tag_storage.base_storage.async_tag_storage import AsyncTagStorage
+from tag_storage.base_storage.tag_storage import TagStorageException
 from tag_storage.pickle_storage.pickle_db_data import PickleDbData
 from tag_storage.pickle_storage.pickle_storage_synchronizer import PickledSetTagStorageSynchronizer
 from tag_storage.pickle_storage.pickle_storage_periodic_synchronizer import PickledSetTagStoragePeriodicSynchronizer, \
@@ -23,7 +24,7 @@ class PickledSetTagStorageConfiguration:
     overwrite: bool = False
     synchronizer:PickledSetTagStorageSynchronizer = dataclasses.field(default_factory=lambda: PickledSetTagStoragePeriodicSynchronizer(PickledSetTagStoragePeriodicSynchronizerConfiguration()))
 
-class InvalidPickleDatabaseFile(Exception):
+class InvalidPickleDatabaseFile(TagStorageException):
     pass
 
 class PickledSetTagStorage(AsyncTagStorage):
@@ -50,14 +51,11 @@ class PickledSetTagStorage(AsyncTagStorage):
 
     def __load_data(self):
         # This is insecure
-        try:
-            with open(self.db_path, 'rb') as f:
-                try:
-                    db_data = pickle.load(f)
-                except TypeError as e:
-                    raise InvalidPickleDatabaseFile(f"{self.db_path} is not a valid pickle db: {e}")
-        except FileNotFoundError:
-                raise InvalidPickleDatabaseFile(f"{self.db_path} does not exist!")
+        with open(self.db_path, 'rb') as f:
+            try:
+                db_data = pickle.load(f)
+            except (pickle.UnpicklingError, TypeError) as e:
+                raise InvalidPickleDatabaseFile(f"{self.db_path} is not a valid pickle db: {e}")
 
 
         # TODO: validate the data

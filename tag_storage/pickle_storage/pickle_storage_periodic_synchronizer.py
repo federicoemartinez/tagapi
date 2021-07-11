@@ -1,5 +1,6 @@
 from __future__ import annotations
 import asyncio
+import dataclasses
 import datetime
 from dataclasses import field
 from typing import Optional
@@ -10,9 +11,9 @@ if TYPE_CHECKING:
 from tag_storage.pickle_storage.pickle_storage_synchronizer import PickledSetTagStorageSynchronizer, \
     PickledSetTagStorageSynchronizerConfiguration
 
-
+@dataclasses.dataclass
 class PickledSetTagStoragePeriodicSynchronizerConfiguration(PickledSetTagStorageSynchronizerConfiguration):
-    interval: datetime.interval = field(default_factory=lambda: datetime.timedelta(seconds=60))
+    interval: datetime.interval = field(default_factory=lambda: datetime.timedelta(seconds=1))
 
 class PickledSetTagStoragePeriodicSynchronizer(PickledSetTagStorageSynchronizer):
     interval: datetime.timedelta

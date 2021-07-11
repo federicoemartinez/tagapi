@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import abc
 import dataclasses
 from abc import ABC
 
@@ -19,13 +20,15 @@ class PickledSetTagStorageSynchronizer(ABC):
     #    store (PickledSetTagStorage): The store to sync
 
     """
-
+    @abc.abstractmethod
     def __init__(self, config:PickledSetTagStorageSynchronizerConfiguration):
         raise NotImplementedError
 
+    @abc.abstractmethod
     async def sync_store(self, store: PickledSetTagStorage):
         raise NotImplementedError
 
+    @abc.abstractmethod
     async def close(self):
         raise NotImplementedError
 
