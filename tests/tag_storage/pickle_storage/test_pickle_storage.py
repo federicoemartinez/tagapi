@@ -24,6 +24,7 @@ async def test_create_one():
             data = pickle.load(db_file)
             assert isinstance(data, PickleDbData)
 
+
 @pytest.mark.asyncio
 async def test_add_objects():
     with tempfile.TemporaryDirectory() as temp_dir:
@@ -80,7 +81,7 @@ async def test_tag_and_untag():
 
         await storage.remove_tag('fake tag') # must not fail
         await storage.remove_object('fake object')  # must not fail
-        await storage.untag("fake object 2") # must not fail
+        await storage.untag("fake object 2", ['fake tag 2']) # must not fail
         await storage.offline_sync()
         await storage.close()
 
@@ -100,6 +101,7 @@ async def test_load_db():
         assert await storage.get_tags() == tags
         assert await storage.get_tagged_objects(tags[0]) == [one_object]
         assert await storage.get_tagged_objects(tags[1]) == [one_object]
+        await storage.close()
 
 
 @pytest.mark.asyncio
@@ -108,6 +110,10 @@ async def test_load_db_fake_path():
     config = PickledSetTagStorageConfiguration(path=file_path)
     with pytest.raises(FileNotFoundError):
         PickledSetTagStorage(config)
+    await config.synchronizer.close()
+
+@pytest.mark.asyncio
+async def test_load_db_wrong_content():
     with tempfile.TemporaryDirectory() as temp_dir:
         file_path = os.path.join(temp_dir, 'test')
         with open(file_path, 'wb') as f:
@@ -115,3 +121,4 @@ async def test_load_db_fake_path():
         config = PickledSetTagStorageConfiguration(path=file_path)
         with pytest.raises(InvalidPickleDatabaseFile):
             PickledSetTagStorage(config)
+        await config.synchronizer.close()

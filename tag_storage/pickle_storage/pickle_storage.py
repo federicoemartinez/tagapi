@@ -147,7 +147,4 @@ class PickledSetTagStorage(AsyncTagStorage):
             await f.write(s)
 
     async def close(self):
-        try:
-            await self.synchronizer.close()
-        except Exception as e:
-            print(e)
+        await self.synchronizer.close()

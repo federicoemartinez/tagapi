@@ -23,6 +23,9 @@ class PickledSetTagStoragePeriodicSynchronizer(PickledSetTagStorageSynchronizer)
         self.config = config
         self.interval = config.interval
         self.store = None
+        self._create_task()
+
+    def _create_task(self):
         loop = asyncio.get_event_loop()
         self.task = loop.create_task(self.__sync_loop())
 
