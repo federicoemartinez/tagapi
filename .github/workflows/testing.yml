@@ -13,7 +13,7 @@ jobs:
   build:
 
     runs-on: ubuntu-latest
-    container: graphfoundation/ongdb:1.0
+    
 
     # Service containers to run with `container-job`
     services:
