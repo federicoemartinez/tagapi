@@ -82,8 +82,8 @@ def create_sync_app(app: FastAPI, tag_store: SyncTagStorage):
         return {}
 
     @app.get("/objects", response_model=List[str])
-    async def get_objects(limit: int = 100, offset: int = 0) -> List[str]:
-        ret = await  tag_store.get_objects(limit, offset)
+    def get_objects(limit: int = 100, offset: int = 0) -> List[str]:
+        ret = tag_store.get_objects(limit, offset)
         return ret
 
     @app.get("/objects/{object_name}/tags", response_model=List[str])
