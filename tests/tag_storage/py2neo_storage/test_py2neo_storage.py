@@ -23,6 +23,11 @@ class Py2NeoTest(unittest.TestCase):
         Graph(config.url, auth=(config.username, config.password)).delete_all()
         tag_store = Py2NeoStorage(config)
         self.tag_store = tag_store
+
+    def tearDown(self) -> None:
+        config = Py2NeoStorageConfig(url="bolt://127.0.0.1:7687", username=None, password=None)
+        Graph(config.url, auth=(config.username, config.password)).delete_all()
+
     
     def test_create_one(self):
             assert self.tag_store.get_tags() == []

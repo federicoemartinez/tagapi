@@ -61,7 +61,8 @@ class Py2NeoStorage(SyncTagStorage):
             if tag_name not in existing_edges:
                 rel = Relationship(object_node, self.TAGGED, tag_node)
                 tx.create(rel)
-        tx.commit()
+        self.graph.commit(tx)
+        
 
 
     def __create_tag(self, tag_name):
@@ -88,7 +89,7 @@ class Py2NeoStorage(SyncTagStorage):
         tx = self.graph.begin()
         for each in existing_edges:
             tx.separate(each)
-        tx.commit()
+        self.graph.commit(tx)
 
     def remove_object(self, object_to_remove: str):
         object_node = NodeMatcher(self.graph).match(self.OBJECT, name=object_to_remove).first()
