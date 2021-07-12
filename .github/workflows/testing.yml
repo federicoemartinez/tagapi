@@ -21,8 +21,6 @@ jobs:
       ongdb:
         # Docker Hub image
         image: graphfoundation/ongdb:1.0
-        options: >-
-          --volume=$HOME/ongdb/data:/data
         env:
           ONGDB_AUTH: none
         ports:
