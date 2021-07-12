@@ -21,12 +21,13 @@ jobs:
       ongdb:
         # Docker Hub image
         image: graphfoundation/ongdb:1.0
-        # Set health checks to wait until redis has started
         options: >-
-          --env=ONGDB_AUTH=none
-          --publish=7474:7474
-          --publish=7687:7687
           --volume=$HOME/ongdb/data:/data
+        env:
+          ONGDB_AUTH: none
+        ports:
+          - 7474:7474
+          - 7687:7687
 
     steps:
     - uses: actions/checkout@v2
