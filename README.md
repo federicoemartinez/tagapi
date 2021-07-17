@@ -9,7 +9,7 @@ To run it:
 
 ```
 pip install -r requirements.txt
-Copy .env.example.pickle_db tp .env
+cp .env.example.pickle_db .env
 python -m uvicorn main:app
 ```
 After that, navigate to 127.0.0.1:8000/docs to see the openapi documentation of the endpoints.
