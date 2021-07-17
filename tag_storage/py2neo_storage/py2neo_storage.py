@@ -14,12 +14,11 @@ class Py2NeoStorageConfig:
 
 
 class Py2NeoStorage(SyncTagStorage):
-
     TAG = 'tag'
-    OBJECT ='object'
+    OBJECT = 'object'
     TAGGED = 'Tagged'
 
-    def __init__(self, config:Py2NeoStorageConfig):
+    def __init__(self, config: Py2NeoStorageConfig):
         self.config = config
         self.graph = Graph(config.url, auth=(config.username, config.password))
 
@@ -34,23 +33,24 @@ class Py2NeoStorage(SyncTagStorage):
         return [x['name'] for x in match]
 
     def get_tagged_objects(self, tag: str, limit: int = 100, offset: int = 0) -> Collection[str]:
-        res = self.graph.run("MATCH p=(a)-[:%s]->(:%s {name:$name }) RETURN a.name order by a.name skip %d limit %d" % (self.TAGGED, self.TAG, offset, limit), {'name':tag} )
+        res = self.graph.run("MATCH p=(a)-[:%s]->(:%s {name:$name }) RETURN a.name order by a.name skip %d limit %d" % (
+        self.TAGGED, self.TAG, offset, limit), {'name': tag})
         return [x[0] for x in res]
 
     def get_object_tags(self, tagged_object: str, limit: int = 100, offset: int = 0) -> Collection[str]:
         res = self.graph.run("MATCH p=(:%s {name:$name })-[:%s]->(a) RETURN a.name order by a.name skip %d limit %d" % (
-        self.OBJECT, self.TAGGED, offset, limit), {'name': tagged_object})
+            self.OBJECT, self.TAGGED, offset, limit), {'name': tagged_object})
         return [x[0] for x in res]
 
     def tag(self, object_to_tag: str, tags: Collection[str]):
         nodes = NodeMatcher(self.graph)
         object_node = nodes.match(self.OBJECT, name=object_to_tag).first()
         if object_node is None:
-            object_node= self.__create_object(object_to_tag)
-        existing_tags = {n['name']:n for n in nodes.match(self.TAG, name=IN(tags)).all()}
+            object_node = self.__create_object(object_to_tag)
+        existing_tags = {n['name']: n for n in nodes.match(self.TAG, name=IN(tags)).all()}
         existing_edges = set()
         for tag_name, tag_node in existing_tags.items():
-            edge = RelationshipMatcher(self.graph).match(nodes=(object_node,tag_node),r_type=self.TAGGED).first()
+            edge = RelationshipMatcher(self.graph).match(nodes=(object_node, tag_node), r_type=self.TAGGED).first()
             if edge is not None:
                 existing_edges.add(tag_name)
 
@@ -63,8 +63,6 @@ class Py2NeoStorage(SyncTagStorage):
                 rel = Relationship(object_node, self.TAGGED, tag_node)
                 tx.create(rel)
         self.graph.commit(tx)
-        
-
 
     def __create_tag(self, tag_name):
         n = Node(self.TAG, name=tag_name)
@@ -84,7 +82,7 @@ class Py2NeoStorage(SyncTagStorage):
         existing_tags = {n['name']: n for n in nodes.match(self.TAG, name=IN(tags)).all()}
         existing_edges = []
         for tag_name, tag_node in existing_tags.items():
-            edge = RelationshipMatcher(self.graph).match(nodes=(object_node,tag_node),r_type=self.TAGGED).first()
+            edge = RelationshipMatcher(self.graph).match(nodes=(object_node, tag_node), r_type=self.TAGGED).first()
             if edge is not None:
                 existing_edges.append(edge)
         tx = self.graph.begin()
@@ -102,7 +100,5 @@ class Py2NeoStorage(SyncTagStorage):
         if tag:
             self.graph.delete(tag)
 
-
     def close(self):
         pass
-

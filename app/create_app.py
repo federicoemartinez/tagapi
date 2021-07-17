@@ -7,7 +7,7 @@ from tag_storage.base_storage.sync_tag_storage import SyncTagStorage
 from tag_storage.base_storage.tag_storage import TagStorage
 
 
-def create_app(tag_storage: TagStorage, app_name:str='Tagapi'):
+def create_app(tag_storage: TagStorage, app_name: str = 'Tagapi'):
     app = FastAPI(name=app_name, title=app_name)
 
     if isinstance(tag_storage, AsyncTagStorage):

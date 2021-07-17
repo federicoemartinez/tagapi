@@ -1,4 +1,3 @@
-
 from typing import Collection
 
 from tag_storage.base_storage.tag_storage import TagStorage

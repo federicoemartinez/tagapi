@@ -4,7 +4,7 @@ import copy
 import dataclasses
 import os.path
 import pickle
-from typing import Collection, Optional
+from typing import Collection
 
 import aiofiles
 import aiorwlock
@@ -13,30 +13,34 @@ from sortedcontainers import SortedSet
 from tag_storage.base_storage.async_tag_storage import AsyncTagStorage
 from tag_storage.base_storage.tag_storage import TagStorageException
 from tag_storage.pickle_storage.pickle_db_data import PickleDbData
-from tag_storage.pickle_storage.pickle_storage_synchronizer import PickledSetTagStorageSynchronizer
 from tag_storage.pickle_storage.pickle_storage_periodic_synchronizer import PickledSetTagStoragePeriodicSynchronizer, \
     PickledSetTagStoragePeriodicSynchronizerConfiguration
+from tag_storage.pickle_storage.pickle_storage_synchronizer import PickledSetTagStorageSynchronizer
 
 
 @dataclasses.dataclass
 class PickledSetTagStorageConfiguration:
     path: str
     overwrite: bool = False
-    synchronizer:PickledSetTagStorageSynchronizer = dataclasses.field(default_factory=lambda: PickledSetTagStoragePeriodicSynchronizer(PickledSetTagStoragePeriodicSynchronizerConfiguration()))
+    synchronizer: PickledSetTagStorageSynchronizer = dataclasses.field(
+        default_factory=lambda: PickledSetTagStoragePeriodicSynchronizer(
+            PickledSetTagStoragePeriodicSynchronizerConfiguration()))
+
 
 class InvalidPickleDatabaseFile(TagStorageException):
     pass
 
-class PickledSetTagStorage(AsyncTagStorage):
-    db_path:str
-    lock:aiorwlock.RWLock
-    db_data:PickleDbData
-    synchronizer:PickledSetTagStorageSynchronizer
-    config:PickledSetTagStorageConfiguration
-    dirty:bool
 
-    def __init__(self, config:PickledSetTagStorageConfiguration):
-        self.dirty=False
+class PickledSetTagStorage(AsyncTagStorage):
+    db_path: str
+    lock: aiorwlock.RWLock
+    db_data: PickleDbData
+    synchronizer: PickledSetTagStorageSynchronizer
+    config: PickledSetTagStorageConfiguration
+    dirty: bool
+
+    def __init__(self, config: PickledSetTagStorageConfiguration):
+        self.dirty = False
         self.config = config
         self.lock = aiorwlock.RWLock()
         self.db_path = config.path
@@ -56,7 +60,6 @@ class PickledSetTagStorage(AsyncTagStorage):
                 db_data = pickle.load(f)
             except (pickle.UnpicklingError, TypeError) as e:
                 raise InvalidPickleDatabaseFile(f"{self.db_path} is not a valid pickle db: {e}")
-
 
         # TODO: validate the data
         self.db_data = db_data
@@ -90,7 +93,7 @@ class PickledSetTagStorage(AsyncTagStorage):
                     tagged_objects = SortedSet()
                     self.db_data.tags[each] = tagged_objects
                 tagged_objects.add(object_to_tag)
-            self.dirty=True
+            self.dirty = True
 
     async def remove_tag(self, tag_to_remove: str):
         async with self.lock.writer_lock:
@@ -133,13 +136,13 @@ class PickledSetTagStorage(AsyncTagStorage):
                 async with aiofiles.open(self.db_path, 'wb') as f:
                     s = pickle.dumps(self.db_data)
                     await f.write(s)
-                self.dirty=False
+                self.dirty = False
 
     async def online_sync(self):
         async with self.lock.reader_lock:
             if self.dirty:
                 snapshot = copy.deepcopy(self.db_data)
-                self.dirty=False
+                self.dirty = False
             else:
                 return
         async with aiofiles.open(self.db_path, 'wb') as f:
