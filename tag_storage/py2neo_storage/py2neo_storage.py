@@ -5,11 +5,12 @@ from py2neo import Graph, NodeMatcher, Node, Relationship, RelationshipMatcher, 
 
 from tag_storage.base_storage.sync_tag_storage import SyncTagStorage
 
+
 @dataclasses.dataclass
 class Py2NeoStorageConfig:
-    url:str
-    username:str
-    password:str
+    url: str
+    username: str
+    password: str
 
 
 class Py2NeoStorage(SyncTagStorage):
